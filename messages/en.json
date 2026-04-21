@@ -7,7 +7,8 @@
     "login": "Login",
     "blog": "Blog",
     "about": "About",
-    "services": "Services"
+    "services": "Services",
+    "careers": "Careers"
   },
   "dashboard": {
     "parent": {
