@@ -1,4 +1,4 @@
-import { BookOpen, HelpCircle, BarChart2, Users, ChevronRight, Clock, CheckCircle2, Upload } from 'lucide-react';
+import { BookOpen, HelpCircle, BarChart2, Users, ChevronRight, Clock, CheckCircle2, Upload, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 const TEACHER = { name: 'Prof. Alain Mbida', subject: 'Mathématiques', classes: ['3e A', '3e B', '2nde C'], students: 54 };
@@ -16,9 +16,9 @@ const PENDING_QUESTIONS = [
 ];
 
 const CLASS_STATS = [
-  { class: '3e A',   avg: 14.8, students: 18, top: 'Emma Fouda',  color: '#2563EB', pct: 74 },
-  { class: '3e B',   avg: 13.2, students: 19, top: 'Paul Nkeng',  color: '#7C3AED', pct: 66 },
-  { class: '2nde C', avg: 15.6, students: 17, top: 'Sara Biyong', color: '#16A34A', pct: 78 },
+  { class: '3e A',   avg: 14.8, students: 18, color: '#2563EB', pct: 74 },
+  { class: '3e B',   avg: 13.2, students: 19, color: '#7C3AED', pct: 66 },
+  { class: '2nde C', avg: 15.6, students: 17, color: '#16A34A', pct: 78 },
 ];
 
 const RECENT_RESOURCES = [
@@ -33,30 +33,48 @@ const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
 };
 
 export default function TeacherDashboard() {
+  const doneCount = TODAY_CLASSES.filter(c => c.done).length;
+
   return (
-    <div className="p-4 md:p-6 max-w-6xl space-y-6">
+    <div className="p-4 md:p-6 space-y-5">
 
       {/* Welcome banner */}
       <div
-        className="rounded-2xl p-5 md:p-6 text-white relative overflow-hidden"
+        className="rounded-2xl p-6 md:p-8 text-white relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #D97706 0%, #B45309 100%)' }}
       >
         <div className="relative z-10">
-          <p className="text-white/70 text-sm mb-1">Bonjour 👋</p>
-          <h1 className="font-display font-black text-2xl md:text-3xl">{TEACHER.name}</h1>
-          <p className="text-white/65 text-sm mt-1">{TEACHER.subject} · PES Douala</p>
-          <div className="flex items-center gap-3 mt-4 flex-wrap">
-            <div className="flex items-center gap-2 bg-white/15 rounded-xl px-4 py-2">
-              <Users size={15} className="text-white/80" />
-              <span className="text-white font-bold">{TEACHER.students} élèves</span>
+          <p className="text-white/65 text-sm font-medium mb-1">Bonjour 👋</p>
+          <h1 className="font-display font-black text-3xl md:text-4xl leading-tight">{TEACHER.name}</h1>
+          <p className="text-white/60 text-sm mt-1">{TEACHER.subject} · PES Douala</p>
+
+          <div className="flex flex-wrap gap-5 md:gap-10 mt-5">
+            <div>
+              <p className="font-display font-black text-3xl text-white leading-none">{TEACHER.students}</p>
+              <p className="text-white/55 text-xs mt-1">Élèves au total</p>
             </div>
+            <div>
+              <p className="font-display font-black text-3xl text-white leading-none">{TEACHER.classes.length}</p>
+              <p className="text-white/55 text-xs mt-1">Classes</p>
+            </div>
+            <div>
+              <p className="font-display font-black text-3xl text-white leading-none">{doneCount}/{TODAY_CLASSES.length}</p>
+              <p className="text-white/55 text-xs mt-1">Cours aujourd&apos;hui</p>
+            </div>
+            <div>
+              <p className="font-display font-black text-3xl text-white leading-none">{PENDING_QUESTIONS.length}</p>
+              <p className="text-white/55 text-xs mt-1">Questions en attente</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mt-5">
             {TEACHER.classes.map(cls => (
-              <span key={cls} className="bg-white/15 text-white text-sm font-semibold px-3 py-1.5 rounded-xl">{cls}</span>
+              <span key={cls} className="bg-white/15 text-white text-sm font-semibold px-3.5 py-1.5 rounded-xl">{cls}</span>
             ))}
           </div>
         </div>
-        <div className="absolute -right-6 -top-6 w-36 h-36 rounded-full bg-white/5" />
-        <div className="absolute -right-2 -bottom-8 w-48 h-48 rounded-full bg-white/5" />
+        <div className="absolute -right-8 -top-8 w-48 h-48 rounded-full bg-white/5" />
+        <div className="absolute -right-4 -bottom-12 w-64 h-64 rounded-full bg-white/5" />
       </div>
 
       {/* Today's classes */}
@@ -66,18 +84,20 @@ export default function TeacherDashboard() {
             <Clock size={16} className="text-[var(--accent-primary)]" />
             <h2 className="font-semibold text-[var(--text-primary)]">Mes cours aujourd&apos;hui</h2>
           </div>
-          <span className="text-xs font-medium text-[var(--text-muted)]">
-            {TODAY_CLASSES.filter(c => c.done).length}/{TODAY_CLASSES.length} terminés
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+            style={{ backgroundColor: doneCount === TODAY_CLASSES.length ? '#D1FAE5' : '#EFF6FF',
+                     color: doneCount === TODAY_CLASSES.length ? '#16A34A' : '#2563EB' }}>
+            {doneCount}/{TODAY_CLASSES.length} terminés
           </span>
         </div>
         <div className="divide-y divide-[var(--border-color)]">
           {TODAY_CLASSES.map(({ class: cls, time, room, topic, done }) => (
             <div key={cls + time} className="flex items-center gap-4 px-5 py-4">
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: done ? '#F0FDF4' : '#EFF6FF', color: done ? '#16A34A' : '#2563EB' }}
+                className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: done ? '#F0FDF4' : '#FFF7ED', color: done ? '#16A34A' : '#D97706' }}
               >
-                {done ? <CheckCircle2 size={18} /> : <BookOpen size={18} />}
+                {done ? <CheckCircle2 size={20} /> : <BookOpen size={20} />}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -89,7 +109,7 @@ export default function TeacherDashboard() {
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
                 style={done
                   ? { backgroundColor: '#D1FAE5', color: '#16A34A' }
-                  : { backgroundColor: '#EFF6FF', color: '#2563EB' }}
+                  : { backgroundColor: '#FFF7ED', color: '#D97706' }}
               >
                 {done ? 'Terminé' : 'À venir'}
               </span>
@@ -98,7 +118,8 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* 3-column section */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         {/* Pending questions */}
         <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--background)] overflow-hidden">
@@ -117,7 +138,7 @@ export default function TeacherDashboard() {
           <div className="divide-y divide-[var(--border-color)]">
             {PENDING_QUESTIONS.map(({ student, question, class: cls, time }) => (
               <div key={student} className="flex items-start gap-3 px-5 py-4 hover:bg-[var(--background-soft)] transition-colors cursor-pointer">
-                <div className="w-9 h-9 rounded-full bg-[#EFF6FF] flex items-center justify-center text-xs font-bold text-[#2563EB] flex-shrink-0 mt-0.5">
+                <div className="w-9 h-9 rounded-full bg-[#FFF7ED] flex items-center justify-center text-xs font-bold text-[#D97706] flex-shrink-0 mt-0.5">
                   {student.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -125,11 +146,17 @@ export default function TeacherDashboard() {
                     <p className="text-sm font-semibold text-[var(--text-primary)]">{student}</p>
                     <span className="text-xs text-[var(--text-muted)] flex-shrink-0">{time}</span>
                   </div>
-                  <p className="text-xs text-[var(--text-muted)] truncate">{question}</p>
+                  <p className="text-xs text-[var(--text-muted)] line-clamp-2">{question}</p>
                   <span className="text-xs font-medium text-[#7C3AED] mt-1 inline-block">{cls}</span>
                 </div>
               </div>
             ))}
+          </div>
+          <div className="px-5 py-4 border-t border-[var(--border-color)]">
+            <Link href="questions"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--background-soft)] transition-colors">
+              Répondre aux questions
+            </Link>
           </div>
         </div>
 
@@ -145,84 +172,81 @@ export default function TeacherDashboard() {
             </Link>
           </div>
           <div className="divide-y divide-[var(--border-color)]">
-            {CLASS_STATS.map(({ class: cls, avg, students, top, color, pct }) => (
-              <div key={cls} className="px-5 py-4">
+            {CLASS_STATS.map(({ class: cls, avg, students, color, pct }) => (
+              <div key={cls} className="px-5 py-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">{cls}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{students} élèves · 1er : {top}</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{students} élèves</p>
                   </div>
-                  <span className="text-2xl font-display font-black" style={{ color }}>{avg}</span>
+                  <span className="text-3xl font-display font-black" style={{ color }}>{avg}</span>
                 </div>
-                <div className="h-2 rounded-full bg-[var(--background-muted)]">
+                <div className="h-2.5 rounded-full bg-[var(--background-muted)]">
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+                </div>
+                <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1.5">
+                  <span>0</span><span>10</span><span>20</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent resources */}
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--background)] overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)]">
-            <div className="flex items-center gap-2">
-              <BookOpen size={16} className="text-[var(--accent-primary)]" />
-              <h2 className="font-semibold text-[var(--text-primary)]">Ressources publiées</h2>
-            </div>
-            <Link href="resources" className="text-sm text-[var(--accent-primary)] hover:underline flex items-center gap-0.5">
-              Gérer <ChevronRight size={14} />
-            </Link>
-          </div>
-          <div className="divide-y divide-[var(--border-color)]">
-            {RECENT_RESOURCES.map(({ title, type, downloads, date }) => {
-              const ts = TYPE_STYLE[type] ?? { bg: '#F3F4F6', color: '#6B7280' };
-              return (
-                <div key={title} className="flex items-center gap-3 px-5 py-4 hover:bg-[var(--background-soft)] transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0" style={ts}>
-                    {type}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{title}</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{downloads} téléchargements · {date}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="px-5 py-4 border-t border-[var(--border-color)]">
-            <Link
-              href="resources"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Upload size={15} /> Publier une ressource
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { icon: HelpCircle, label: 'Répondre\naux questions', href: 'questions', color: '#EF4444', bg: '#FEF2F2', count: 3 },
-            { icon: Upload,     label: 'Publier une\nressource',   href: 'resources', color: '#2563EB', bg: '#EFF6FF', count: 0 },
-            { icon: BarChart2,  label: 'Saisir\nles notes',        href: 'grades',    color: '#16A34A', bg: '#F0FDF4', count: 0 },
-            { icon: Users,      label: 'Voir mes\nélèves',         href: '#',         color: '#7C3AED', bg: '#F5F3FF', count: 0 },
-          ].map(({ icon: Icon, label, href, color, bg, count }) => (
-            <Link
-              key={label}
-              href={href}
-              className="relative flex flex-col items-center gap-3 p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--background)] hover:shadow-[0_4px_20px_rgb(0_0_0/0.08)] transition-all text-center"
-            >
-              {count > 0 && (
-                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#EF4444] text-white text-xs font-bold flex items-center justify-center">
-                  {count}
-                </span>
-              )}
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: bg }}>
-                <Icon size={22} style={{ color }} />
+        {/* Recent resources + quick actions */}
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--background)] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-2">
+                <BookOpen size={16} className="text-[var(--accent-primary)]" />
+                <h2 className="font-semibold text-[var(--text-primary)]">Ressources publiées</h2>
               </div>
-              <p className="text-xs font-semibold text-[var(--text-primary)] leading-snug whitespace-pre-line">{label}</p>
-            </Link>
-          ))}
+              <Link href="resources" className="text-sm text-[var(--accent-primary)] hover:underline flex items-center gap-0.5">
+                Gérer <ChevronRight size={14} />
+              </Link>
+            </div>
+            <div className="divide-y divide-[var(--border-color)]">
+              {RECENT_RESOURCES.map(({ title, type, downloads, date }) => {
+                const ts = TYPE_STYLE[type] ?? { bg: '#F3F4F6', color: '#6B7280' };
+                return (
+                  <div key={title} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--background-soft)] transition-colors cursor-pointer">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0" style={ts}>
+                      {type.slice(0, 3)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{title}</p>
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">{downloads} dl · {date}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick actions */}
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: HelpCircle, label: 'Questions',    href: 'questions', color: '#EF4444', bg: '#FEF2F2', count: 3 },
+              { icon: Upload,     label: 'Publier',      href: 'resources', color: '#D97706', bg: '#FFF7ED', count: 0 },
+              { icon: BarChart2,  label: 'Notes',        href: 'grades',    color: '#2563EB', bg: '#EFF6FF', count: 0 },
+              { icon: Users,      label: 'Mes élèves',   href: '#',         color: '#16A34A', bg: '#F0FDF4', count: 0 },
+            ].map(({ icon: Icon, label, href, color, bg, count }) => (
+              <Link
+                key={label}
+                href={href}
+                className="relative flex flex-col items-center gap-2.5 p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--background)] hover:shadow-[0_4px_20px_rgb(0_0_0/0.08)] transition-all text-center"
+              >
+                {count > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#EF4444] text-white text-xs font-bold flex items-center justify-center">
+                    {count}
+                  </span>
+                )}
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: bg }}>
+                  <Icon size={20} style={{ color }} />
+                </div>
+                <p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
+              </Link>
+            ))}
+          </div>
         </div>
 
       </div>

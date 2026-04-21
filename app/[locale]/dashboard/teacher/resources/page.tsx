@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Upload, Search, Download, Trash2, Eye, FileText, MoreVertical, X } from 'lucide-react';
+import { Upload, Search, Download, Trash2, Eye, FileText, MoreVertical, X, BookOpen, Check } from 'lucide-react';
 
 const RESOURCES = [
   { id: 1, title: 'Exercices — Équations du 2nd degré', class: '3e A/B', type: 'PDF',   size: '1.2 Mo', downloads: 42, date: '19 avr.', status: 'published' },
@@ -17,31 +17,49 @@ const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
 };
 
 export default function TeacherResources() {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [search, setSearch]       = useState('');
+  const [filter, setFilter]       = useState<'all' | 'published' | 'draft'>('all');
   const [showModal, setShowModal] = useState(false);
-  const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const [openMenu, setOpenMenu]   = useState<number | null>(null);
 
   const filtered = RESOURCES.filter(r =>
     (filter === 'all' || r.status === filter) &&
     r.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalDownloads = RESOURCES.reduce((a, r) => a + r.downloads, 0);
+
   return (
-    <div className="p-4 md:p-6 max-w-4xl space-y-5">
+    <div className="p-4 md:p-6 space-y-5">
 
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-display font-black text-2xl text-[var(--text-primary)]">Ressources</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">{RESOURCES.length} ressources · {RESOURCES.filter(r => r.status === 'published').length} publiées</p>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            {RESOURCES.length} ressources · {RESOURCES.filter(r => r.status === 'published').length} publiées
+          </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-[0_2px_8px_rgb(37_99_235/0.3)]"
         >
           <Upload size={16} /> Publier
         </button>
+      </div>
+
+      {/* Stats mini-cards */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Publiées',     value: RESOURCES.filter(r => r.status === 'published').length, color: '#16A34A', bg: '#F0FDF4' },
+          { label: 'Brouillons',   value: RESOURCES.filter(r => r.status === 'draft').length,      color: '#D97706', bg: '#FFF7ED' },
+          { label: 'Téléchargements', value: totalDownloads,                                       color: '#2563EB', bg: '#EFF6FF' },
+        ].map(({ label, value, color, bg }) => (
+          <div key={label} className="rounded-2xl border border-[var(--border-color)] bg-[var(--background)] p-4 text-center">
+            <p className="font-display font-black text-3xl leading-none" style={{ color }}>{value}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1.5">{label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Search + filters */}
@@ -51,8 +69,8 @@ export default function TeacherResources() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher…"
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-primary)]"
+            placeholder="Rechercher une ressource…"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-primary)] transition-colors"
           />
         </div>
         <div className="flex gap-2">
@@ -71,45 +89,78 @@ export default function TeacherResources() {
         </div>
       </div>
 
-      {/* List */}
+      {/* Resources list */}
       <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--background)] overflow-hidden">
+        {/* Desktop header */}
+        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_80px_40px] gap-4 px-5 py-3 border-b border-[var(--border-color)] bg-[var(--background-soft)]">
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Ressource</span>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Classe</span>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Taille · Date</span>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide text-center">Dl</span>
+          <span />
+        </div>
+
         <div className="divide-y divide-[var(--border-color)]">
-          {filtered.map(({ id, title, class: cls, type, size, downloads, date, status }) => {
+          {filtered.length === 0 ? (
+            <div className="py-16 text-center text-sm text-[var(--text-muted)]">Aucune ressource trouvée</div>
+          ) : filtered.map(({ id, title, class: cls, type, size, downloads, date, status }) => {
             const ts = TYPE_STYLE[type] ?? { bg: '#F3F4F6', color: '#6B7280' };
             return (
-              <div key={id} className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--background-soft)] transition-colors">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0" style={ts}>
+              <div
+                key={id}
+                className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--background-soft)] transition-colors"
+              >
+                {/* Icon */}
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={ts}
+                >
                   {type.slice(0, 3).toUpperCase()}
                 </div>
+
+                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{title}</p>
                     {status === 'draft' && (
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#D97706] flex-shrink-0">Brouillon</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#D97706] flex-shrink-0">
+                        Brouillon
+                      </span>
                     )}
                   </div>
-                  <p className="text-xs text-[var(--text-muted)]">{cls} · {size} · {date}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    <span className="font-medium">{cls}</span> · {size} · {date}
+                  </p>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-                  <Download size={13} /> {downloads}
+
+                {/* Downloads */}
+                <div className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-[var(--text-muted)] min-w-[60px] justify-center">
+                  <Download size={13} className="flex-shrink-0" />
+                  {downloads}
                 </div>
-                <div className="relative">
+
+                {/* Menu */}
+                <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setOpenMenu(openMenu === id ? null : id)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[var(--background-muted)] transition-colors text-[var(--text-muted)]"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[var(--background-muted)] transition-colors text-[var(--text-muted)]"
                   >
                     <MoreVertical size={16} />
                   </button>
                   {openMenu === id && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
-                      <div className="absolute right-0 top-9 z-20 w-40 rounded-xl border border-[var(--border-color)] bg-[var(--background)] shadow-lg py-1">
+                      <div className="absolute right-0 top-10 z-20 w-44 rounded-2xl border border-[var(--border-color)] bg-[var(--background)] shadow-[0_8px_24px_rgb(0_0_0/0.12)] py-1.5 overflow-hidden">
                         {[
-                          { icon: Eye, label: 'Prévisualiser', cls: 'text-[var(--text-primary)]' },
-                          { icon: FileText, label: 'Modifier', cls: 'text-[var(--text-primary)]' },
-                          { icon: Trash2, label: 'Supprimer', cls: 'text-[#EF4444]' },
-                        ].map(({ icon: Icon, label, cls }) => (
-                          <button key={label} className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[var(--background-soft)] ${cls}`}>
+                          { icon: Eye,      label: 'Prévisualiser', textClass: 'text-[var(--text-primary)]' },
+                          { icon: FileText, label: 'Modifier',      textClass: 'text-[var(--text-primary)]' },
+                          { icon: Trash2,   label: 'Supprimer',     textClass: 'text-[#EF4444]'            },
+                        ].map(({ icon: Icon, label, textClass }) => (
+                          <button
+                            key={label}
+                            onClick={() => setOpenMenu(null)}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-[var(--background-soft)] transition-colors ${textClass}`}
+                          >
                             <Icon size={14} /> {label}
                           </button>
                         ))}
@@ -125,30 +176,75 @@ export default function TeacherResources() {
 
       {/* Upload modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-[var(--background)] border border-[var(--border-color)] p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display font-bold text-xl text-[var(--text-primary)]">Publier une ressource</h2>
-              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-[var(--background-muted)] text-[var(--text-muted)]"><X size={18} /></button>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-[var(--background)] border border-[var(--border-color)] shadow-[0_24px_80px_rgb(0_0_0/0.25)] overflow-hidden">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} className="text-[var(--accent-primary)]" />
+                <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Publier une ressource</h2>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[var(--background-muted)] text-[var(--text-muted)] transition-colors"
+              >
+                <X size={16} />
+              </button>
             </div>
-            <div className="space-y-3">
-              <input placeholder="Titre de la ressource" className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm outline-none focus:border-[var(--accent-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" />
-              <select className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm text-[var(--text-muted)] outline-none">
-                <option value="">Classe…</option>
-                <option>3e A</option><option>3e B</option><option>2nde C</option>
-              </select>
-              <select className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm text-[var(--text-muted)] outline-none">
-                <option value="">Type de fichier…</option>
-                <option>PDF</option><option>Fiche</option><option>Vidéo</option>
-              </select>
-              <div className="border-2 border-dashed border-[var(--border-color)] rounded-xl p-8 text-center cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
-                <Upload size={24} className="mx-auto mb-2 text-[var(--text-muted)]" />
-                <p className="text-sm text-[var(--text-muted)]">Glisser-déposer ou <span className="text-[var(--accent-primary)] font-semibold">parcourir</span></p>
+
+            {/* Modal body */}
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5 block">
+                  Titre de la ressource
+                </label>
+                <input
+                  placeholder="Ex. : Exercices — Équations du 2nd degré"
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-primary)] transition-colors"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5 block">Classe</label>
+                  <select className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]">
+                    <option value="">Choisir…</option>
+                    <option>3e A</option><option>3e B</option><option>2nde C</option><option>Toutes</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5 block">Type</label>
+                  <select className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--background-soft)] text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-primary)]">
+                    <option value="">Choisir…</option>
+                    <option>PDF</option><option>Fiche</option><option>Vidéo</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Drop zone */}
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5 block">Fichier</label>
+                <div className="border-2 border-dashed border-[var(--border-color)] rounded-2xl p-8 text-center cursor-pointer hover:border-[var(--accent-primary)] hover:bg-[var(--accent-soft)] transition-colors group">
+                  <Upload size={28} className="mx-auto mb-3 text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] transition-colors" />
+                  <p className="text-sm text-[var(--text-muted)]">
+                    Glisser-déposer ou{' '}
+                    <span className="text-[var(--accent-primary)] font-semibold">parcourir</span>
+                  </p>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">PDF, DOCX, MP4 · Max 200 Mo</p>
+                </div>
               </div>
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-3 rounded-xl border border-[var(--border-color)] text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--background-soft)]">Annuler</button>
-              <button className="flex-1 py-3 rounded-xl bg-[var(--accent-primary)] text-sm font-semibold text-white hover:opacity-90">Publier</button>
+
+            {/* Modal footer */}
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 py-3 rounded-xl border border-[var(--border-color)] text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--background-soft)] transition-colors"
+              >
+                Annuler
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--accent-primary)] text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+                <Check size={15} /> Publier
+              </button>
             </div>
           </div>
         </div>
