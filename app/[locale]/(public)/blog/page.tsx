@@ -1,4 +1,4 @@
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -106,9 +106,9 @@ const POSTS = [
   },
 ];
 
-export default async function BlogPage() {
-  const t = await getTranslations('blog');
-  const locale = await getLocale();
+export default async function BlogPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'blog' });
   const isFr = locale === 'fr';
 
   const [featured, ...rest] = POSTS;
