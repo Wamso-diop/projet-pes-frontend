@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -439,7 +439,7 @@ const ARTICLES: Article[] = [
 /* ═══════════════════════════════════════════════════════════
    RELATED POSTS helper
 ═══════════════════════════════════════════════════════════ */
-function getRelated(currentSlug: string, isFr: boolean, locale: string) {
+function getRelated(currentSlug: string) {
   return ARTICLES.filter((a) => a.slug !== currentSlug).slice(0, 3);
 }
 
@@ -448,6 +448,7 @@ function getRelated(currentSlug: string, isFr: boolean, locale: string) {
 ═══════════════════════════════════════════════════════════ */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const article = ARTICLES.find((a) => a.slug === slug);
   if (!article) return {};
   const isFr = locale === 'fr';
@@ -466,13 +467,14 @@ export function generateStaticParams() {
 ═══════════════════════════════════════════════════════════ */
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'blog' });
   const isFr = locale === 'fr';
 
   const article = ARTICLES.find((a) => a.slug === slug);
   if (!article) notFound();
 
-  const related = getRelated(slug, isFr, locale);
+  const related = getRelated(slug);
 
   return (
     <div className="bg-[var(--background)] min-h-screen">

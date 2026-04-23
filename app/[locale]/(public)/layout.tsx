@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PublicBottomNav from '@/components/layout/PublicBottomNav';
@@ -7,6 +8,7 @@ type Props = { children: React.ReactNode; params: Promise<{ locale: string }> };
 
 export default async function PublicLayout({ children, params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <>
       <Navbar />
