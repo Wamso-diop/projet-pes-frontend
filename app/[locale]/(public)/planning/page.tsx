@@ -1,4 +1,4 @@
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Clock, Users, MapPin, Home } from 'lucide-react';
@@ -30,9 +30,9 @@ const SLOTS = [
 
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
-export default async function PlanningPage() {
-  const t = await getTranslations('planning');
-  const locale = await getLocale();
+export default async function PlanningPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'planning' });
 
   return (
     <div className="bg-[var(--background)]">

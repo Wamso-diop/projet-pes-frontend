@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getLocale } from 'next-intl/server';
 import {
   Calculator, Atom, Leaf, Languages, BookOpen, Map,
   Monitor, Lightbulb, TrendingUp, Globe, BookText, Receipt,
@@ -52,9 +51,9 @@ const EXAMS = [
   { name: 'Concours',   level: 'Tle+',   desc: 'Grandes Écoles & Universités',        color: '#EC4899', tier: 3, system: 'fr' },
 ];
 
-export default async function ServicesPage() {
-  const t = await getTranslations('services');
-  const locale = await getLocale();
+export default async function ServicesPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'services' });
 
   const francoLevels = [
     { key: 'primary' as const, color: '#2563EB', grades: 'CP · CE1 · CE2 · CM1 · CM2', abbr: 'FR' },

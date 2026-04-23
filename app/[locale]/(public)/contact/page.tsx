@@ -1,4 +1,4 @@
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import ContactForm from '@/components/shared/ContactForm';
 import { MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
@@ -10,9 +10,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: locale === 'fr' ? 'Contact | PES Douala' : 'Contact | PES Douala' };
 }
 
-export default async function ContactPage() {
-  const t = await getTranslations('contact');
-  const locale = await getLocale();
+export default async function ContactPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'contact' });
 
   const INFO = [
     { icon: MapPin,         label: t('info.address'), color: '#2563EB', bg: '#EFF6FF' },

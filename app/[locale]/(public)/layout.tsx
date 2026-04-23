@@ -3,14 +3,17 @@ import Footer from '@/components/layout/Footer';
 import PublicBottomNav from '@/components/layout/PublicBottomNav';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+type Props = { children: React.ReactNode; params: Promise<{ locale: string }> };
+
+export default async function PublicLayout({ children, params }: Props) {
+  const { locale } = await params;
   return (
     <>
       <Navbar />
       <main className="min-h-screen md:pb-0 pb-nav">
         {children}
       </main>
-      <Footer />
+      <Footer locale={locale} />
       <PublicBottomNav />
       <WhatsAppButton />
     </>

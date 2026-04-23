@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 
-export default async function Footer() {
-  const locale = await getLocale();
-  const t = await getTranslations('nav');
+interface Props { locale: string }
+
+export default async function Footer({ locale }: Props) {
+  const t = await getTranslations({ locale, namespace: 'nav' });
 
   return (
     <footer className="border-t border-[var(--border-color)] bg-[var(--background-soft)] mt-auto">
